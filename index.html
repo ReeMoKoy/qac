@@ -539,6 +539,70 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
     </div>
 </div>
 
+<script type="module">
+// ==================== FIREBASE ====================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB9GWiWW8eOMQoO-qOXlOQXep6Dg7Zs81w",
+  authDomain: "qacai-eb98b.firebaseapp.com",
+  projectId: "qacai-eb98b",
+  storageBucket: "qacai-eb98b.firebasestorage.app",
+  messagingSenderId: "19135596481",
+  appId: "1:19135596481:web:72ebec788b8059ebf51140",
+  measurementId: "G-Q3N1DYYQN9"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+// Firebase fonksiyonlarını global yap
+window.fbAddAnswer = async function(question, answer, author) {
+    try {
+        await addDoc(collection(db, "answers"), {
+            question: question.toLowerCase().trim(),
+            answer: answer,
+            author: author,
+            likes: 0,
+            createdAt: new Date().toISOString()
+        });
+        return true;
+    } catch (e) {
+        console.error("Firebase yazma hatası:", e);
+        return false;
+    }
+};
+
+window.fbGetAnswers = async function() {
+    try {
+        var snapshot = await getDocs(collection(db, "answers"));
+        var list = [];
+        snapshot.forEach(function(d) { list.push({ id: d.id, ...d.data() }); });
+        return list;
+    } catch (e) {
+        console.error("Firebase okuma hatası:", e);
+        return [];
+    }
+};
+
+window.fbLikeAnswer = async function(id) {
+    try {
+        var ref = doc(db, "answers", id);
+        var snapshot = await getDocs(collection(db, "answers"));
+        var currentLikes = 0;
+        snapshot.forEach(function(d) { if (d.id === id) currentLikes = d.data().likes || 0; });
+        await updateDoc(ref, { likes: currentLikes + 1 });
+        return true;
+    } catch (e) {
+        console.error("Firebase beğeni hatası:", e);
+        return false;
+    }
+};
+
+console.log("✅ Firebase bağlandı!");
+</script>
+
 <script>
 // ==================== VERİTABANI ====================
 var temelBilgiler = {
@@ -608,6 +672,7 @@ var qacaiModels = {
 };
 var qacaiBG = localStorage.getItem('qacai_bg') || 'normal';
 var qacaiTone = localStorage.getItem('qacai_tone') || 'normal';
+var communityCache = [];
 
 // ==================== MODEL SEÇİM ====================
 function qacaiToggleModelMenu(e) {
@@ -696,8 +761,54 @@ function qacaiApplyTone(cevap) {
     return cevap;
 }
 
+// ==================== TOPLULUK (FIREBASE) ====================
+async function refreshCommunityCache() {
+    try {
+        if (typeof window.fbGetAnswers === 'function') {
+            communityCache = await window.fbGetAnswers();
+            console.log("✅ Topluluk cevapları yüklendi:", communityCache.length);
+        }
+    } catch (e) {
+        console.warn("Topluluk yüklenemedi:", e);
+    }
+}
+function getCommunityAnswers(query) {
+    var q = query.toLowerCase().trim();
+    var qNorm = normalizeTR(q);
+    return communityCache.filter(function(a) {
+        var aq = (a.question || '').toLowerCase();
+        var aqNorm = normalizeTR(aq);
+        return aq.indexOf(q) !== -1 || q.indexOf(aq) !== -1 || aqNorm.indexOf(qNorm) !== -1 || qNorm.indexOf(aqNorm) !== -1;
+    });
+}
+async function addCommunityAnswer(question, answer, author) {
+    try {
+        if (typeof window.fbAddAnswer === 'function') {
+            await window.fbAddAnswer(question, answer, author);
+            await refreshCommunityCache();
+        }
+    } catch (e) {
+        console.warn("Topluluk yazılamadı:", e);
+    }
+}
+async function likeCommunity(id, el) {
+    var key = 'qac_liked_' + id;
+    if (localStorage.getItem(key) === '1') { showToast('⚠️ Zaten beğendin!'); return; }
+    try {
+        if (typeof window.fbLikeAnswer === 'function') {
+            await window.fbLikeAnswer(id);
+            localStorage.setItem(key, '1');
+            showToast('👍 Beğendin!');
+            await refreshCommunityCache();
+            setTimeout(function() { renderResults(currentResults, currentSearchQuery); }, 300);
+        }
+    } catch (e) {
+        showToast('❌ Beğeni kaydedilemedi');
+    }
+}
+
 // ==================== YÜKLEME ====================
-window.addEventListener('load', function() {
+window.addEventListener('load', async function() {
     setTimeout(function() { document.getElementById('loadingScreen').classList.add('hide'); }, 900);
     var saved = localStorage.getItem('qac_current_mail');
     if (saved && loadAccounts()[saved]) currentMailUser = saved;
@@ -708,6 +819,8 @@ window.addEventListener('load', function() {
     if (qacaiBG === 'rgb') document.body.classList.add('rgb-bg');
     document.querySelectorAll('[data-bg]').forEach(function(x) { x.classList.toggle('active', x.dataset.bg === qacaiBG); });
     document.querySelectorAll('[data-tone]').forEach(function(x) { x.classList.toggle('active', x.dataset.tone === qacaiTone); });
+    // Firebase'den topluluk cevaplarını çek
+    setTimeout(refreshCommunityCache, 1000);
 });
 
 // ==================== SEKMELER ====================
@@ -802,7 +915,7 @@ function renderResults(results, query) {
                 var isBest = (i === 0 && (c.likes || 0) > 0);
                 var likedKey = 'qac_liked_' + c.id;
                 var alreadyLiked = localStorage.getItem(likedKey) === '1';
-                html += '<div class="community-item' + (isBest ? ' best' : '') + '"><div class="community-head"><div class="community-author">👤 <strong>' + c.author + '</strong></div><div class="community-likes' + (alreadyLiked ? ' liked' : '') + '" onclick="likeCommunity(\'' + c.id + '\',this)"><span>👍</span> <span>' + (c.likes || 0) + '</span></div></div><div class="community-body">' + c.answer.replace(/</g, '&lt;') + '</div></div>';
+                html += '<div class="community-item' + (isBest ? ' best' : '') + '"><div class="community-head"><div class="community-author">👤 <strong>' + c.author + '</strong></div><div class="community-likes' + (alreadyLiked ? ' liked' : '') + '" onclick="likeCommunity(\'' + c.id + '\',this)"><span>👍</span> <span>' + (c.likes || 0) + '</span></div></div><div class="community-body">' + (c.answer || '').replace(/</g, '&lt;') + '</div></div>';
             });
             html += '</div>';
         }
@@ -839,33 +952,6 @@ function switchSearchTab(type, el) {
 }
 function randomSearch() { var r = database[Math.floor(Math.random() * database.length)]; var t = r.title.replace(' Nedir? — QAC Bilgi', ''); document.getElementById('homeInput').value = t; doSearch(t); }
 function showToast(msg, color) { color = color || '#4ade80'; var t = document.createElement('div'); t.style.cssText = 'position:fixed;top:55px;right:20px;background:#18181b;border:2px solid ' + color + ';color:' + color + ';padding:14px 22px;border-radius:12px;z-index:99999;font-size:13px;font-weight:600;'; t.textContent = msg; document.body.appendChild(t); setTimeout(function() { t.remove(); }, 3000); }
-
-// ==================== TOPLULUK ====================
-function getCommunityAnswers(query) {
-    var q = query.toLowerCase().trim();
-    var qNorm = normalizeTR(q);
-    var all = JSON.parse(localStorage.getItem('qac_community_answers') || '[]');
-    return all.filter(function(a) {
-        var aq = a.question.toLowerCase();
-        var aqNorm = normalizeTR(aq);
-        return aq.indexOf(q) !== -1 || q.indexOf(aq) !== -1 || aqNorm.indexOf(qNorm) !== -1 || qNorm.indexOf(aqNorm) !== -1;
-    });
-}
-function addCommunityAnswer(question, answer, author) {
-    var all = JSON.parse(localStorage.getItem('qac_community_answers') || '[]');
-    all.push({ id: Date.now() + '_' + Math.random().toString(36).slice(2,8), question: question.toLowerCase().trim(), answer: answer, author: author, likes: 0, createdAt: new Date().toISOString() });
-    localStorage.setItem('qac_community_answers', JSON.stringify(all));
-}
-function likeCommunity(id, el) {
-    var key = 'qac_liked_' + id;
-    if (localStorage.getItem(key) === '1') { showToast('⚠️ Zaten beğendin!'); return; }
-    var all = JSON.parse(localStorage.getItem('qac_community_answers') || '[]');
-    for (var i = 0; i < all.length; i++) { if (String(all[i].id) === String(id)) { all[i].likes = (all[i].likes || 0) + 1; break; } }
-    localStorage.setItem('qac_community_answers', JSON.stringify(all));
-    localStorage.setItem(key, '1');
-    showToast('👍 Beğendin!');
-    setTimeout(function() { renderResults(currentResults, currentSearchQuery); }, 300);
-}
 
 // ==================== QMAIL ====================
 function loadAccounts() { return JSON.parse(localStorage.getItem('qac_accounts') || '{}'); }
@@ -1377,15 +1463,15 @@ function qacaiOpenTrainPanel() {
 }
 function qacaiCloseTrainPanel() { document.getElementById('qacaiTrainPanel').classList.remove('active'); }
 function qacaiSavePersona() { var d = qacaiGetUserData(qacaiCurrentUser); d.persona = document.getElementById('qacaiTrainPersona').value.trim(); qacaiSaveUserData(qacaiCurrentUser, d); showToast('✅ Kaydedildi!'); }
-function qacaiAddTraining() {
+async function qacaiAddTraining() {
     var q = document.getElementById('qacaiTrainQuestion').value.trim().toLowerCase();
     var a = document.getElementById('qacaiTrainAnswer').value.trim();
     if (!q || !a) { alert('Soru ve cevap gerekli!'); return; }
     var d = qacaiGetUserData(qacaiCurrentUser);
     d.training.push({ q:q, a:a });
     qacaiSaveUserData(qacaiCurrentUser, d);
-    // HERKESE PAYLAŞ — ortak havuza da ekle
-    addCommunityAnswer(q, a, qacaiCurrentUser);
+    // HERKESE PAYLAŞ — Firebase'e de ekle
+    await addCommunityAnswer(q, a, qacaiCurrentUser);
     document.getElementById('qacaiTrainQuestion').value = '';
     document.getElementById('qacaiTrainAnswer').value = '';
     qacaiRefreshTrainingList();
@@ -1410,7 +1496,7 @@ function qacaiRefreshTrainingList() {
         return '<div class="qacai-train-item"><div><div style="color:#c4b5fd">→ "' + item.q + '"</div><div style="color:#a1a1aa;margin-top:4px">"' + item.a.substring(0, 80) + '..."</div></div><button class="qacai-train-del" onclick="qacaiDeleteTraining(' + i + ')">🗑</button></div>';
     }).join('');
 }
-function qacaiImportJSON() {
+async function qacaiImportJSON() {
     if (!qacaiCurrentUser) { alert('Önce giriş yap!'); return; }
     var raw = document.getElementById('qacaiJsonInput').value.trim();
     if (!raw) { alert('⚠️ JSON verisi boş!'); return; }
@@ -1419,23 +1505,24 @@ function qacaiImportJSON() {
         if (!Array.isArray(data)) { alert('⚠️ JSON bir dizi olmalı'); return; }
         var added = 0, skipped = 0;
         var d = qacaiGetUserData(qacaiCurrentUser);
-        var allCommunity = JSON.parse(localStorage.getItem('qac_community_answers') || '[]');
-        data.forEach(function(item) {
-            if (!item.q || !item.a) { skipped++; return; }
+        var existingCommunity = await window.fbGetAnswers();
+        for (var i = 0; i < data.length; i++) {
+            var item = data[i];
+            if (!item.q || !item.a) { skipped++; continue; }
             var q = item.q.toLowerCase().trim();
             var a = item.a.trim();
             var exists = d.training.some(function(t) { return t.q === q; });
-            if (exists) { skipped++; return; }
+            if (exists) { skipped++; continue; }
             d.training.push({ q: q, a: a });
             added++;
-            // HERKESE PAYLAŞ — ortak havuza da ekle
-            var communityExists = allCommunity.some(function(c) { return c.question === q; });
+            // HERKESE PAYLAŞ — Firebase'e de ekle
+            var communityExists = existingCommunity.some(function(c) { return c.question === q; });
             if (!communityExists) {
-                allCommunity.push({ id: Date.now() + '_' + Math.random().toString(36).slice(2,8), question: q, answer: a, author: qacaiCurrentUser, likes: 0, createdAt: new Date().toISOString() });
+                await window.fbAddAnswer(q, a, qacaiCurrentUser);
             }
-        });
+        }
         qacaiSaveUserData(qacaiCurrentUser, d);
-        localStorage.setItem('qac_community_answers', JSON.stringify(allCommunity));
+        await refreshCommunityCache();
         qacaiRefreshTrainingList();
         alert('✅ ' + added + ' örnek eklendi ve herkesle paylaşıldı!' + (skipped > 0 ? '\n⚠️ ' + skipped + ' atlandı.' : ''));
         document.getElementById('qacaiJsonInput').value = '';

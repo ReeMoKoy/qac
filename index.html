@@ -209,6 +209,8 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
 .qacai-msg-ai .bubble { background:#18181b; border:1px solid #27272a; padding:12px 14px; border-radius:14px; max-width:75%; font-size:13px; line-height:1.6; white-space:pre-wrap; }
 .qacai-settings-btn { position:absolute; top:16px; right:16px; background:rgba(24,24,27,0.8); border:1px solid #27272a; color:#a1a1aa; width:38px; height:38px; border-radius:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; backdrop-filter: blur(10px); z-index:50; }
 .qacai-settings-btn:hover { color:#c4b5fd; border-color:#7c3aed; }
+.qacai-back-btn { position:absolute; top:16px; left:16px; background:rgba(24,24,27,0.8); border:1px solid #27272a; color:#a1a1aa; padding:8px 14px; border-radius:10px; cursor:pointer; font-size:12px; backdrop-filter: blur(10px); z-index:50; font-weight:600; }
+.qacai-back-btn:hover { color:#c4b5fd; border-color:#7c3aed; }
 .qacai-settings-panel { display:none; position:absolute; top:60px; right:16px; width:320px; background:rgba(24,24,27,0.98); border:1px solid #27272a; border-radius:14px; padding:18px; z-index:60; backdrop-filter: blur(20px); box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
 .qacai-settings-panel.show { display:block; }
 .qacai-settings-panel h4 { font-size:12px; color:#71717a; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; margin-top:14px; font-weight:700; }
@@ -325,6 +327,7 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
     </div>
 
     <div class="screen" id="screen-qacai">
+        <button class="qacai-back-btn" onclick="closeQACAI()">← QAC'a Dön</button>
         <div id="qacaiAuthView" class="qacai-auth">
             <div class="qacai-auth-box">
                 <div class="qacai-auth-logo">QACAI</div>
@@ -514,7 +517,7 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
 <div id="qacaiTrainPanel">
     <div class="qacai-train-modal">
         <div class="qacai-train-title">🎓 QACAI'yi Eğit</div>
-        <div class="qacai-train-desc">Öğrettiğin bilgi tüm kullanıcılarla paylaşılır!</div>
+        <div class="qacai-train-desc">Öğrettiğin bilgi sadece senin QACAI'nde geçerli olur. 🔒</div>
         <label class="qacai-train-label">📥 Hazır Bilgi Paketi Yükle</label>
         <textarea id="qacaiJsonInput" class="qacai-train-input" style="min-height:100px;font-family:monospace;font-size:11px;" placeholder='[{"q":"soru","a":"cevap"}]'></textarea>
         <button class="qacai-train-save" onclick="qacaiImportJSON()" style="background:linear-gradient(90deg,#4ade80,#22c55e);">📥 JSON'dan Yükle</button>
@@ -527,7 +530,7 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
         <label class="qacai-train-label">Yeni Bilgi Öğret</label>
         <input type="text" id="qacaiTrainQuestion" class="qacai-train-input" placeholder="Soru">
         <textarea id="qacaiTrainAnswer" class="qacai-train-input" style="min-height:120px;resize:vertical;" placeholder="Uzun ve detaylı cevap yaz..."></textarea>
-        <button class="qacai-train-save" onclick="qacaiAddTraining()">Bilgiyi Öğret ve Paylaş</button>
+        <button class="qacai-train-save" onclick="qacaiAddTraining()">Bilgiyi Öğret (Sadece Bana)</button>
         <br><br>
         <label class="qacai-train-label">Senin Bilgilerin (<span id="qacaiTrainCount">0</span>)</label>
         <div id="qacaiTrainList"></div>
@@ -717,12 +720,57 @@ function renderTabs() {
     html += '<button class="tab-plus" onclick="addTab()">+</button>';
     bar.innerHTML = html;
 }
-function addTab() { var newId = nextTabId++; tabs.push({ id:newId, name:'Yeni Sekme', screen:'home' }); activeTabId = newId; renderTabs(); showScreen('home'); }
-function switchTab(id) { activeTabId = id; renderTabs(); var tab = tabs.find(function(t) { return t.id === id; }); if (tab) showScreen(tab.screen); }
+function addTab() {
+    var newId = nextTabId++;
+    tabs.push({ id: newId, name: 'Yeni Sekme', screen: 'home' });
+    activeTabId = newId;
+    renderTabs();
+    // QACAI ekranını kapat
+    var qacaiEl = document.getElementById('screen-qacai');
+    if (qacaiEl) { qacaiEl.style.display = 'none'; qacaiEl.classList.remove('active'); }
+    // Topbar'ı geri getir
+    var topbar = document.querySelector('.topbar');
+    if (topbar) topbar.style.display = 'flex';
+    showScreen('home');
+}
+function switchTab(id) {
+    activeTabId = id;
+    renderTabs();
+    var tab = tabs.find(function(t) { return t.id === id; });
+    if (tab) {
+        // QACAI'den normal ekrana geçiş
+        if (tab.screen !== 'qacai') {
+            var qacaiEl = document.getElementById('screen-qacai');
+            if (qacaiEl) { qacaiEl.style.display = 'none'; qacaiEl.classList.remove('active'); }
+            var topbar = document.querySelector('.topbar');
+            if (topbar) topbar.style.display = 'flex';
+        }
+        showScreen(tab.screen);
+    }
+}
 function closeTab(e, id) { e.stopPropagation(); if (tabs.length === 1) return; var idx = tabs.findIndex(function(t) { return t.id === id; }); tabs.splice(idx, 1); if (activeTabId === id) activeTabId = tabs[Math.max(0, idx-1)].id; renderTabs(); var tab = tabs.find(function(t) { return t.id === activeTabId; }); if (tab) showScreen(tab.screen); }
 function setTabName(name) { var tab = tabs.find(function(t) { return t.id === activeTabId; }); if (tab) { tab.name = name.substring(0, 22); renderTabs(); } }
 function setTabScreen(screen) { var tab = tabs.find(function(t) { return t.id === activeTabId; }); if (tab) tab.screen = screen; }
-function showScreen(name) { document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); }); var el = document.getElementById('screen-' + name); if (el) el.classList.add('active'); setTabScreen(name); document.getElementById('content').scrollTop = 0; }
+function showScreen(name) {
+    // QACAI ekranını tamamen kapat
+    var qacaiEl = document.getElementById('screen-qacai');
+    if (qacaiEl) { qacaiEl.style.display = 'none'; qacaiEl.classList.remove('active'); }
+    // Tüm ekranların inline display'ini temizle
+    document.querySelectorAll('.screen').forEach(function(s) {
+        s.classList.remove('active');
+        s.style.display = '';
+    });
+    var el = document.getElementById('screen-' + name);
+    if (el) el.classList.add('active');
+    // QACAI ise özel
+    if (name === 'qacai' && qacaiEl) {
+        qacaiEl.style.display = 'flex';
+        qacaiEl.classList.add('active');
+    }
+    setTabScreen(name);
+    var content = document.getElementById('content');
+    if (content) content.scrollTop = 0;
+}
 function goHome() { showScreen('home'); setTabName('Yeni Sekme'); var i = document.getElementById('homeInput'); if (i) { i.value = ''; i.focus(); } }
 
 // ==================== ARAMA ====================
@@ -1342,11 +1390,11 @@ function qacaiAddTraining() {
     var d = qacaiGetUserData(qacaiCurrentUser);
     d.training.push({ q:q, a:a });
     qacaiSaveUserData(qacaiCurrentUser, d);
-    addCommunityAnswer(q, a, qacaiCurrentUser);
+    // Topluluk paylaşımı KAPALI — sadece bu kullanıcıya özel
     document.getElementById('qacaiTrainQuestion').value = '';
     document.getElementById('qacaiTrainAnswer').value = '';
     qacaiRefreshTrainingList();
-    showToast('✅ Öğretildi ve paylaşıldı!');
+    showToast('✅ Öğretildi! (Sadece sana özel)');
 }
 function qacaiDeleteTraining(i) {
     if (!confirm('Silinsin mi?')) return;
@@ -1376,7 +1424,6 @@ function qacaiImportJSON() {
         if (!Array.isArray(data)) { alert('⚠️ JSON bir dizi olmalı'); return; }
         var added = 0, skipped = 0;
         var d = qacaiGetUserData(qacaiCurrentUser);
-        var allCommunity = JSON.parse(localStorage.getItem('qac_community_answers') || '[]');
         data.forEach(function(item) {
             if (!item.q || !item.a) { skipped++; return; }
             var q = item.q.toLowerCase().trim();
@@ -1385,15 +1432,11 @@ function qacaiImportJSON() {
             if (exists) { skipped++; return; }
             d.training.push({ q: q, a: a });
             added++;
-            var communityExists = allCommunity.some(function(c) { return c.question === q && c.author === qacaiCurrentUser; });
-            if (!communityExists) {
-                allCommunity.push({ id: Date.now() + '_' + Math.random().toString(36).slice(2,8), question: q, answer: a, author: qacaiCurrentUser, likes: 0, createdAt: new Date().toISOString() });
-            }
         });
         qacaiSaveUserData(qacaiCurrentUser, d);
-        localStorage.setItem('qac_community_answers', JSON.stringify(allCommunity));
+        // Topluluk paylaşımı KAPALI — sadece bu kullanıcıya özel
         qacaiRefreshTrainingList();
-        alert('✅ ' + added + ' örnek eklendi!' + (skipped > 0 ? '\n⚠️ ' + skipped + ' atlandı.' : ''));
+        alert('✅ ' + added + ' örnek eklendi! (Sadece sana özel)' + (skipped > 0 ? '\n⚠️ ' + skipped + ' atlandı.' : ''));
         document.getElementById('qacaiJsonInput').value = '';
     } catch (e) {
         alert('❌ JSON hatası: ' + e.message);
@@ -1417,14 +1460,20 @@ function qacaiExportJSON() {
     showToast('📤 ' + exportData.length + ' bilgi indirildi!');
 }
 function openQACAI() {
-    var screens = ['home','results','detail','builder','qmail','mailread','settings','about','store'];
-    screens.forEach(function(s) { var el = document.getElementById('screen-' + s); if (el) el.style.display = 'none'; });
-    var topbar = document.getElementById('topbar');
+    // Tüm normal ekranları kapat
+    document.querySelectorAll('.screen').forEach(function(s) {
+        s.classList.remove('active');
+        s.style.display = '';
+    });
+    var topbar = document.querySelector('.topbar');
     if (topbar) topbar.style.display = 'none';
     var qacaiEl = document.getElementById('screen-qacai');
-    if (qacaiEl) { qacaiEl.style.display = 'flex'; qacaiEl.classList.add('active'); }
-    if (typeof setTabScreen === 'function') setTabScreen('qacai');
-    if (typeof setTabName === 'function') setTabName('QACAI');
+    if (qacaiEl) {
+        qacaiEl.style.display = 'flex';
+        qacaiEl.classList.add('active');
+    }
+    setTabScreen('qacai');
+    setTabName('QACAI');
     var saved = localStorage.getItem('qacai_current');
     var users = qacaiLoadUsers();
     if (saved && users[saved]) { qacaiLoginUser(saved); }
@@ -1435,6 +1484,18 @@ function openQACAI() {
         if (chatView) chatView.style.display = 'none';
         qacaiGenerateCaptcha();
     }
+}
+function closeQACAI() {
+    var qacaiEl = document.getElementById('screen-qacai');
+    if (qacaiEl) { qacaiEl.style.display = 'none'; qacaiEl.classList.remove('active'); }
+    var topbar = document.querySelector('.topbar');
+    if (topbar) topbar.style.display = 'flex';
+    // Yeni sekme aç (normal arayüz)
+    var newId = nextTabId++;
+    tabs.push({ id: newId, name: 'Yeni Sekme', screen: 'home' });
+    activeTabId = newId;
+    renderTabs();
+    showScreen('home');
 }
 </script>
 

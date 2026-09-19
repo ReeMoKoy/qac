@@ -99327,9 +99327,9 @@ var currentMailId = null;
 var currentMailFolder = 'inbox';
 var qacaiCurrentModel = localStorage.getItem('qacai_model') || 'flash1';
 var qacaiModels = {
-    flash1: { name: 'QACAI Flash 1', iq: 100, delay: 140, typeSpeed: 3 },
-    flashlite1: { name: 'QACAI Flash-Lite 1', iq: 250, delay: 440, typeSpeed: 6 },
-    ultra211: { name: 'QACAI Ultra 21.1', iq: 500, delay: 900, typeSpeed: 10 }
+    flash1: { name: 'QACAI Flash 1', iq: 100, delay: 450, typeSpeed: 0 },
+    flashlite1: { name: 'QACAI Flash-Lite 1', iq: 250, delay: 800, typeSpeed: 0 },
+    ultra211: { name: 'QACAI Ultra 21.1', iq: 500, delay: 1200, typeSpeed: 0 }
 };
 var qacaiBG = localStorage.getItem('qacai_bg') || 'normal';
 var qacaiTone = localStorage.getItem('qacai_tone') || 'normal';
@@ -100061,14 +100061,12 @@ function qacaiSearchInData(text, dataList) {
 }
 
 // qacaiGetAIResponse qacai gelismis model yonlendiricisi tarafindan tanimlanmistir.
-function qacaiTypeEffect(el, text, i) {
-    i = i || 0;
-    var speed = qacaiModels[qacaiCurrentModel].typeSpeed;
-    if (i < text.length) {
-        el.textContent += text.charAt(i);
-        setTimeout(function() { qacaiTypeEffect(el, text, i + 1); }, speed);
-        document.getElementById('qacaiChatArea').scrollTop = 999999;
-    }
+function qacaiTypeEffect(el, text) {
+    // Uzun cevaplarda karakter karakter animasyon gecikmeyi buyutuyordu.
+    // Metni tek seferde gostererek yanit suresini model gecikmesiyle sinirliyoruz.
+    el.textContent = text || '';
+    var area = document.getElementById('qacaiChatArea');
+    if (area) area.scrollTop = 999999;
 }
 function qacaiSendPreset(text) { document.getElementById('qacaiUserInput').value = text; qacaiSendMessage(); }
 function qacaiHandleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); qacaiSendMessage(); } }

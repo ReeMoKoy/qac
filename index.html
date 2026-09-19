@@ -192,6 +192,17 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
 .qacai-opt.active { background:linear-gradient(135deg,#7c3aed,#a855f7); color:#fff; border-color:#a855f7; }
 .qacai-opt-row.vertical { flex-direction:column; }
 .qacai-opt-row.vertical .qacai-opt { text-align:left; display:flex; align-items:center; gap:8px; }
+
+/* ===== QACAI GELISMIS OZELLIKLER ===== */
+.qacai-thinking{width:100%;max-width:720px;min-height:22px;margin:8px auto 0;padding:0 8px;color:#8b83a8;font-size:11px;opacity:0;transition:opacity .25s}.qacai-thinking.show{opacity:1}.qacai-thinking .pulse{display:inline-block;width:7px;height:7px;border-radius:50%;background:#a78bfa;margin-right:7px;animation:qacaiPulse 1s infinite}@keyframes qacaiPulse{0%,100%{transform:scale(.8);opacity:.45}50%{transform:scale(1.25);opacity:1}}
+.qacai-model-inline-menu .item.ultra{border:1px solid rgba(96,165,250,.25)}.qacai-model-inline-menu .item.ultra .qacai-badge-mini{background:linear-gradient(90deg,#22d3ee,#60a5fa,#a78bfa);color:#08111d}
+.qacai-multi-btn{background:#18181b;border:1px solid #27272a;color:#a1a1aa;padding:7px 11px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer}.qacai-multi-btn:hover{border-color:#60a5fa;color:#dbeafe}
+.qacai-multi-panel{display:none;position:absolute;left:50%;top:70px;transform:translateX(-50%);width:min(1100px,calc(100% - 32px));max-height:72vh;overflow:auto;background:rgba(10,10,12,.98);border:1px solid #27272a;border-radius:18px;padding:16px;z-index:180;box-shadow:0 25px 90px rgba(0,0,0,.65);backdrop-filter:blur(18px)}.qacai-multi-panel.show{display:block}
+.qacai-multi-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.qacai-multi-head h3{font-size:14px;color:#f4f4f5}.qacai-multi-close{background:#27272a;border:1px solid #3f3f46;color:#e4e4e7;width:32px;height:32px;border-radius:9px;cursor:pointer}
+.qacai-multi-input-row{display:flex;gap:8px;margin-bottom:14px}.qacai-multi-input-row textarea{flex:1;min-height:50px;background:#111;color:#eee;border:1px solid #3f3f46;border-radius:10px;padding:10px;resize:vertical;font:inherit;outline:none}.qacai-multi-input-row button{padding:0 16px;border:none;border-radius:10px;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-weight:700;cursor:pointer}
+.qacai-multi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.qacai-multi-card{background:#18181b;border:1px solid #27272a;border-radius:13px;padding:12px;min-height:150px}.qacai-multi-card h4{font-size:12px;margin-bottom:8px;color:#e4e4e7}.qacai-multi-card .res{white-space:pre-wrap;color:#a1a1aa;line-height:1.55;font-size:12px}@media(max-width:900px){.qacai-multi-grid{grid-template-columns:1fr}}
+.qacai-settings-panel .subhint{color:#52525b;font-size:10px;margin:4px 0 8px}
+body[data-response-ui="cards"] .qacai-msg-ai .bubble{border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18)}body[data-response-ui="terminal"] .qacai-msg-ai .bubble{background:#050505;border-color:#14532d;color:#86efac;font-family:Consolas,monospace}body[data-response-ui="glass"] .qacai-msg-ai .bubble,body[data-response-ui="glass"] .qacai-msg-user .bubble{background:rgba(39,39,42,.55);backdrop-filter:blur(12px)}body[data-response-ui="compact"] .qacai-messages{gap:7px}body[data-response-ui="compact"] .qacai-msg-ai .bubble,body[data-response-ui="compact"] .qacai-msg-user .bubble{padding:7px 10px;font-size:12px}body[data-density="wide"] .qacai-msg-ai .bubble{max-width:90%}body[data-density="tight"] .qacai-msg-ai .bubble{max-width:65%}.search-ui-soft .results-header,.search-ui-soft .results-search{border-radius:16px}.search-ui-compact .results-list{max-width:1000px}
 </style>
 </head>
 <body>
@@ -326,7 +337,35 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
                 <div class="qacai-opt active" onclick="qacaiSetBG('normal', this)" data-bg="normal">Normal</div>
                 <div class="qacai-opt" onclick="qacaiSetBG('rgb', this)" data-bg="rgb">RGB</div>
             </div>
-            <h4>💬 Konuşma Biçimi</h4>
+            <h4>🧠 Cevap Arayuzu</h4>
+            <div class="qacai-opt-row">
+                <div class="qacai-opt active" onclick="qacaiSetResponseUI('default', this)">Klasik</div>
+                <div class="qacai-opt" onclick="qacaiSetResponseUI('cards', this)">Kart</div>
+                <div class="qacai-opt" onclick="qacaiSetResponseUI('terminal', this)">Terminal</div>
+                <div class="qacai-opt" onclick="qacaiSetResponseUI('glass', this)">Cam</div>
+                <div class="qacai-opt" onclick="qacaiSetResponseUI('compact', this)">Kompakt</div>
+            </div>
+            <div class="subhint">AI cevap gorunumunu degistirir.</div>
+            <h4>🔎 Arama Arayuzu</h4>
+            <div class="qacai-opt-row">
+                <div class="qacai-opt active" onclick="qacaiSetSearchUI('default', this)">Klasik</div>
+                <div class="qacai-opt" onclick="qacaiSetSearchUI('soft', this)">Yumusak</div>
+                <div class="qacai-opt" onclick="qacaiSetSearchUI('compact', this)">Kompakt</div>
+            </div>
+            <h4>✨ AI Logo</h4>
+            <div class="qacai-opt-row">
+                <div class="qacai-opt active" onclick="qacaiSetLogo('default', this)">Varsayilan</div>
+                <div class="qacai-opt" onclick="qacaiSetLogo('letter', this)">Q</div>
+                <div class="qacai-opt" onclick="qacaiSetLogo('ring', this)">Neon</div>
+                <div class="qacai-opt" onclick="qacaiSetLogo('minimal', this)">Minimal</div>
+            </div>
+            <h4>📐 Yazi Yogunlugu</h4>
+            <div class="qacai-opt-row">
+                <div class="qacai-opt active" onclick="qacaiSetDensity('normal', this)">Normal</div>
+                <div class="qacai-opt" onclick="qacaiSetDensity('tight', this)">Dar</div>
+                <div class="qacai-opt" onclick="qacaiSetDensity('wide', this)">Genis</div>
+            </div>
+            <h4>💬 Konusma Bicimi</h4>
             <div class="qacai-opt-row vertical" id="qacaiToneList">
                 <div class="qacai-opt active" onclick="qacaiSetTone('normal', this)" data-tone="normal">💬 Normal</div>
                 <div class="qacai-opt" onclick="qacaiSetTone('samimi', this)" data-tone="samimi">😎 Samimi (kanka)</div>
@@ -337,6 +376,15 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
                 <div class="qacai-opt" onclick="qacaiSetTone('felsefi', this)" data-tone="felsefi">🧠 Felsefi</div>
                 <div class="qacai-opt" onclick="qacaiSetTone('neseli', this)" data-tone="neseli">🌟 Neşeli</div>
                 <div class="qacai-opt" onclick="qacaiSetTone('sinirli', this)" data-tone="sinirli">😠 Sinirli</div>
+            </div>
+        </div>
+        <div id="qacaiMultiChatPanel" class="qacai-multi-panel">
+            <div class="qacai-multi-head"><h3>⚡ Multi-Chat</h3><button class="qacai-multi-close" onclick="qacaiToggleMultiChat(false)">✕</button></div>
+            <div class="qacai-multi-input-row"><textarea id="qacaiMultiInput" placeholder="Ayni soruyu uc modele gonder..."></textarea><button onclick="qacaiMultiSend()">Gonder</button></div>
+            <div class="qacai-multi-grid">
+                <div class="qacai-multi-card"><h4>⚡ Flash 1</h4><div class="res" id="multiFlash">Hazir.</div></div>
+                <div class="qacai-multi-card"><h4>🚀 Flash-Lite 1</h4><div class="res" id="multiPro">Hazir.</div></div>
+                <div class="qacai-multi-card"><h4>🌌 Ultra 21.1</h4><div class="res" id="multiUltra">Hazir.</div></div>
             </div>
         </div>
         <div id="qacaiChatView" class="qacai-wrap" style="display:none;">
@@ -383,7 +431,9 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
                         <textarea id="qacaiUserInput" rows="1" placeholder="Bir soru yazın..." onkeydown="qacaiHandleKey(event)"></textarea>
                         <button class="qacai-send-circle" id="qacaiSendBtn" onclick="qacaiSendMessage()">➤</button>
                     </div>
+                    <div id="qacaiThinking" class="qacai-thinking"><span class="pulse"></span><span id="qacaiThinkingText">Hazir.</span></div>
                     <div class="qacai-input-bottom">
+                        <button class="qacai-multi-btn" onclick="qacaiToggleMultiChat()">⚡ Multi-Chat</button>
                         <div class="qacai-model-inline">
                             <button class="qacai-model-inline-btn" onclick="qacaiToggleModelMenu(event)">
                                 <span class="dot" id="modelDot"></span>
@@ -399,6 +449,9 @@ body.rgb-bg #qacaiChatView { background: rgba(0,0,0,0.85); backdrop-filter: blur
                                     <div class="n"><span class="qacai-badge-mini lite">PRO</span> QACAI Flash-Lite 1</div>
                                     <div class="d">Detaylı, uzun cevaplar.</div>
                                 </div>
+                                <div class="item ultra" onclick="qacaiSelectModel('ultra211')" data-model="ultra211">
+                                    <div class="n"><span class="qacai-badge-mini">ULTRA</span> QACAI Ultra 21.1</div>
+                                    <div class="d">Gelismis arama, hesaplama ve model gecisi.</div>
                             </div>
                         </div>
                     </div>
@@ -99196,6 +99249,14 @@ var qacaiProData = [
     "a": "Atasozu konusu, bu konu dilin yapisi, kelimeler, anlam, yazim, ceviri ve iletisim gibi alanlarla ilgilidir. Bu konuyu dogru anlamak icin tanimin yaninda nasil calistigina, hangi durumlarda kullanildigina ve hangi sinirlara sahip olduguna bakmak gerekir. Baslangicta temel kavramlari ogrenmek, daha sonra ornekler uzerinden uygulama yapmak ve sonucu kontrol etmek yararlidir. Farkli durumlarda sonuc degisebilecegi icin tek bir ornekten genel kural cikarmamak onemlidir. Ozellikle teknoloji, saglik, hukuk ve ekonomi gibi alanlarda bilgi zamanla degisebileceginden guncel ve guvenilir kaynaklarla dogrulama yapmak da uygun bir yaklasimdir. Bu bakis acisinda konunun diger ilgili alanlarla baglantisini aciklar. Konuyu daha saglam anlamak icin temel tanimi, uygulama kosullarini, sinirlarini ve somut orneklerini birlikte ele almak yararlidir. Bir bilgi veya yontem degerlendirilirken kaynagin guvenilirligi, baglam ve amacin ne oldugu da dikkate alinmalidir. Tek bir ornekten butun duruma genelleme yapmak yerine farkli durumlari karsilastirmak, kavramin nerede ise yaradigini ve nerede sinirli kaldigini daha acik gosterebilir. Bu nedenle konuya baslarken once temel kavramlari anlamak, sonra uygulama ve istisnalari incelemek dengeli bir yaklasim saglar."
   }
 ];
+var qacaiUltraData=[
+{q:'matematiksel hesaplama nedir?',a:'Matematiksel hesaplama, sayilar veya sembolik ifadeler uzerindeki islemlerin kurallara uygun bicimde uygulanarak sonuc elde edilmesidir. Islem onceligi, parantezler ve kullanilan birim ya da olcekle ilgili kosullar sonucu etkileyebilir.'},
+{q:'bir metin nasil daha iyi yazilir?',a:'Iyi bir metin once net bir amaca ve ana fikre sahip olur. Ardindan bilgiler mantikli bir sirayla verilir, gereksiz tekrarlar azaltilir, cumleler okunabilir tutulur ve hedef okuyucuya uygun bir dil secilir. Ornekler ve basliklar karmasik bilgiyi daha kolay takip etmeye yardimci olur.'},
+{q:'kod hatasi nasil bulunur?',a:'Kod hatasi bulmak icin once hata mesajini ve hatanin olustugu noktayi belirlemek, sonra beklenen davranisla gercek davranisi karsilastirmak yararlidir. Sorunu kucuk bir testte yeniden uretmek ve kodu adim adim incelemek olasi nedeni hizla daraltabilir.'},
+{q:'yapay zeka cevap verirken ne yapmali?',a:'Bir yapay zeka soruyu once anlamlandirmali, ilgili bilgi alanlarini taramali, kesin bilgilerle varsayimlari ayirmali ve sonucun sorunun kosullariyla uyumlu olup olmadigini kontrol etmelidir. Belirsiz bir noktada bunu kullaniciya acikca bildirmek guveni artirir.'},
+{q:'internet sitesi nasil hizlandirilir?',a:'Bir sitenin performansini iyilestirmek icin once olcum yapmak gerekir. Buyuk medya dosyalarini sikistirmak, gereksiz kodlari azaltmak, onbellegi kullanmak, kritik kaynaklari daha erken yuklemek ve sunucu yanitlarini iyilestirmek genellikle etkili baslangic adimlaridir.'},
+{q:'bir problemi nasil parcalara ayirabilirim?',a:'Karmasik bir problemi cozmek icin hedefi netlestirmek, problemi daha kucuk alt gorevlere ayirmak ve alt gorevleri onceliklendirmek yararlidir. Her adimi ayri test etmek, hata varsa sadece ilgili parcaya odaklanmayi ve sonunda parcali cozumleri birlestirmeyi kolaylastirir.'}
+];
 // ==================== VERİTABANI ====================
 var temelBilgiler = {
     programlama: ['Python','JavaScript','Java','C++','C#','PHP','Ruby','Go','Rust','Swift','Kotlin','TypeScript','Dart','Perl','R','MATLAB','Bash','Scala','Lua'],
@@ -99259,11 +99320,16 @@ var currentMailId = null;
 var currentMailFolder = 'inbox';
 var qacaiCurrentModel = localStorage.getItem('qacai_model') || 'flash1';
 var qacaiModels = {
-    flash1: { name: 'QACAI Flash 1', delay: 300, typeSpeed: 8 },
-    flashlite1: { name: 'QACAI Flash-Lite 1', delay: 500, typeSpeed: 10 }
+    flash1: { name: 'QACAI Flash 1', delay: 260, typeSpeed: 7 },
+    flashlite1: { name: 'QACAI Flash-Lite 1', delay: 420, typeSpeed: 9 },
+    ultra211: { name: 'QACAI Ultra 21.1', delay: 720, typeSpeed: 8 }
 };
 var qacaiBG = localStorage.getItem('qacai_bg') || 'normal';
 var qacaiTone = localStorage.getItem('qacai_tone') || 'normal';
+var qacaiResponseUI = localStorage.getItem('qacai_response_ui') || 'default';
+var qacaiSearchUI = localStorage.getItem('qacai_search_ui') || 'default';
+var qacaiLogo = localStorage.getItem('qacai_logo') || 'default';
+var qacaiDensity = localStorage.getItem('qacai_density') || 'normal';
 
 // ==================== MODEL SEÇİM ====================
 function qacaiToggleModelMenu(e) {
@@ -99283,7 +99349,7 @@ function qacaiUpdateModelUI(model) {
     var label = document.getElementById('modelLabel');
     var dot = document.getElementById('modelDot');
     if (label) label.textContent = qacaiModels[model].name;
-    if (dot) { if (model === 'flashlite1') dot.classList.add('lite'); else dot.classList.remove('lite'); }
+    if (dot) { dot.classList.remove('lite'); if (model === 'flashlite1') dot.classList.add('lite'); dot.style.background = model === 'ultra211' ? 'linear-gradient(90deg,#22d3ee,#60a5fa,#a78bfa)' : ''; }
     document.querySelectorAll('.qacai-model-inline-menu .item').forEach(function(item) {
         item.classList.toggle('active', item.dataset.model === model);
     });
@@ -99322,6 +99388,21 @@ function qacaiSetTone(tone, el) {
     var isimler = { normal:'💬 Normal', samimi:'😎 Samimi', resmi:'🎩 Resmi', kisa:'⚡ Kısa', sakaci:'😄 Şakacı', ogretici:'🎓 Öğretici', felsefi:'🧠 Felsefi', neseli:'🌟 Neşeli', sinirli:'😠 Sinirli' };
     showToast('💬 Konuşma biçimi: ' + (isimler[tone] || tone));
 }
+
+function qacaiApplyVisualSettings(){document.body.dataset.responseUi=qacaiResponseUI;document.body.dataset.logo=qacaiLogo;document.body.dataset.density=qacaiDensity;document.body.classList.remove('search-ui-soft','search-ui-compact');if(qacaiSearchUI==='soft')document.body.classList.add('search-ui-soft');if(qacaiSearchUI==='compact')document.body.classList.add('search-ui-compact');var logo=document.querySelector('.qacai-gemini-logo');if(logo){if(qacaiLogo==='letter')logo.innerHTML='<div style=\"width:82px;height:82px;border-radius:24px;background:linear-gradient(135deg,#7c3aed,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:38px;color:#fff;box-shadow:0 0 35px rgba(124,58,237,.45);\">Q</div>';else if(qacaiLogo==='minimal')logo.innerHTML='<div style=\"font-size:58px;font-weight:900;background:linear-gradient(90deg,#a78bfa,#60a5fa);-webkit-background-clip:text;background-clip:text;color:transparent;\">Q</div>';else if(qacaiLogo==='ring')logo.innerHTML='<div style=\"width:86px;height:86px;border-radius:50%;border:5px solid transparent;background:linear-gradient(#111,#111) padding-box,linear-gradient(135deg,#22d3ee,#60a5fa,#a78bfa) border-box;box-shadow:0 0 32px rgba(96,165,250,.45);position:relative;\"><div style=\"position:absolute;inset:19px;border-radius:50%;background:#18181b;\"></div></div>';else if(!logo.querySelector('svg')){logo.innerHTML='<div style=\"font-size:42px;color:#fff;\">✦</div>'}}}
+function qacaiSetResponseUI(v,el){qacaiResponseUI=v;localStorage.setItem('qacai_response_ui',v);if(el){el.parentElement.querySelectorAll('.qacai-opt').forEach(function(x){x.classList.remove('active')});el.classList.add('active')}qacaiApplyVisualSettings();showToast('🧠 Cevap arayuzu degisti')}
+function qacaiSetSearchUI(v,el){qacaiSearchUI=v;localStorage.setItem('qacai_search_ui',v);if(el){el.parentElement.querySelectorAll('.qacai-opt').forEach(function(x){x.classList.remove('active')});el.classList.add('active')}qacaiApplyVisualSettings();showToast('🔎 Arama arayuzu degisti')}
+function qacaiSetLogo(v,el){qacaiLogo=v;localStorage.setItem('qacai_logo',v);document.body.dataset.logo=v;if(el){el.parentElement.querySelectorAll('.qacai-opt').forEach(function(x){x.classList.remove('active')});el.classList.add('active')}showToast('✨ AI logosu degisti')}
+function qacaiSetDensity(v,el){qacaiDensity=v;localStorage.setItem('qacai_density',v);if(el){el.parentElement.querySelectorAll('.qacai-opt').forEach(function(x){x.classList.remove('active')});el.classList.add('active')}qacaiApplyVisualSettings();showToast('📐 Yazi yogunlugu degisti')}
+function qacaiToggleMultiChat(force){var p=document.getElementById('qacaiMultiChatPanel');if(!p)return;var show=typeof force==='boolean'?force:!p.classList.contains('show');p.classList.toggle('show',show)}
+function qacaiTryCalculate(text){var raw=String(text||'').toLowerCase().trim();if(!/[0-9]/.test(raw))return null;var expr=raw.replace(/hesapla|sonucunu bul|sonucu nedir|kac eder|kaç eder|nedir|lutfen|lütfen/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/,/g,'.').replace(/\^/g,'**').replace(/%/g,'/100').trim();if(!expr||!/^[0-9+\-*/().\s]+$/.test(expr))return null;try{var n=Function('"use strict";return ('+expr+')')();if(typeof n!=='number'||!isFinite(n))return null;return '🧮 Hesaplama sonucu: '+Number(n.toFixed(12))}catch(e){return null}}
+function qacaiFindAcrossModels(text,current){var order=current==='flash1'?['flash1','flashlite1','ultra211']:current==='flashlite1'?['flashlite1','flash1','ultra211']:['ultra211','flashlite1','flash1'];for(var i=0;i<order.length;i++){var m=order[i],a=null;if(m==='ultra211')a=qacaiSearchInData(text,qacaiUltraData)||qacaiSearchInData(text,qacaiProData)||qacaiSearchInData(text,qacaiFlash1Data);else if(m==='flashlite1')a=qacaiSearchInData(text,qacaiProData);else a=qacaiSearchInData(text,qacaiFlash1Data);if(a)return{answer:a,source:m}}return null}
+function qacaiShowThinking(step,done){var b=document.getElementById('qacaiThinking'),t=document.getElementById('qacaiThinkingText');if(!b||!t)return;t.textContent=step||'Analiz ediliyor...';b.classList.add('show');if(done)setTimeout(function(){b.classList.remove('show')},600)}
+function qacaiGetAIResponse(text,opts){opts=opts||{};if(!qacaiCurrentUser)return'Önce giriş yap!';var calc=qacaiTryCalculate(text);if(calc)return qacaiApplyTone(calc);if(!opts.silent)qacaiShowThinking('🔎 Soruyu analiz ediyor...');var r=qacaiFindAcrossModels(text,qacaiCurrentModel);if(!opts.silent)setTimeout(function(){qacaiShowThinking(r&&r.source!==qacaiCurrentModel?'↔️ Diger model taraniyor...':'🧠 Bilgi havuzu taraniyor...')},120);if(r){var p='';if(r.source!==qacaiCurrentModel){var n={flash1:'Flash 1',flashlite1:'Flash-Lite 1',ultra211:'Ultra 21.1'};p='😊 Bu bilgi mevcut modelde bulunamadi. '+n[r.source]+' modelinde bulundu; oradan getiriyorum.\n\n'}if(!opts.silent)setTimeout(function(){qacaiShowThinking('✍️ Cevap hazirlaniyor...')},240);return qacaiApplyTone(p+r.answer)}if(!opts.silent)setTimeout(function(){qacaiShowThinking('⚠️ Uygun bilgi bulunamadi.',true)},260);return qacaiApplyTone('Sorunu aldim: "'+text+'"\n\nBu konuda bilgi havuzumda uygun bir cevap bulunamadi.')}
+function qacaiGetPublicAnswer(text){var c=qacaiTryCalculate(text);if(c)return c;var r=qacaiFindAcrossModels(text,'ultra211');return r?qacaiApplyTone(r.answer):null}
+function qacaiSendMessage(){var input=document.getElementById('qacaiUserInput'),text=(input&&input.value||'').trim();if(!text||!qacaiCurrentUser)return;var chat=qacaiGetCurrentChat();if(!chat)chat=qacaiCreateChat();var w=document.getElementById('qacaiWelcome');if(w)w.style.display='none';qacaiAddMessageToUI('user',text,false);qacaiAddMessageToCurrentChat('user',text);input.value='';var b=document.getElementById('qacaiSendBtn');if(b)b.disabled=true;qacaiShowThinking('🔎 Soruyu analiz ediyor...');var model=qacaiModels[qacaiCurrentModel]||qacaiModels.flash1;setTimeout(function(){var cevap=qacaiGetAIResponse(text);qacaiShowThinking('✍️ Cevap yaziliyor...',true);qacaiAddMessageToUI('ai',cevap,true);qacaiAddMessageToCurrentChat('ai',cevap);if(b)b.disabled=false},model.delay)}
+function qacaiMultiSend(){var el=document.getElementById('qacaiMultiInput'),text=(el&&el.value||'').trim();if(!text)return;[['flash1','multiFlash'],['flashlite1','multiPro'],['ultra211','multiUltra']].forEach(function(p){var old=qacaiCurrentModel;qacaiCurrentModel=p[0];var n=document.getElementById(p[1]);if(n)n.textContent='🔎 Araniyor...';setTimeout(function(){var r=qacaiGetAIResponse(text,{silent:true});if(n)n.textContent=r;qacaiCurrentModel=old},qacaiModels[p[0]].delay)})}
+
 function qacaiApplyTone(cevap) {
     if (!cevap) return cevap;
     var t = qacaiTone;
@@ -99361,6 +99442,7 @@ window.addEventListener('load', function() {
     renderTabs();
     qacaiGenerateCaptcha();
     qacaiUpdateModelUI(qacaiCurrentModel);
+    qacaiApplyVisualSettings();
     if (qacaiBG === 'rgb') document.body.classList.add('rgb-bg');
     document.querySelectorAll('[data-bg]').forEach(function(x) { x.classList.toggle('active', x.dataset.bg === qacaiBG); });
     document.querySelectorAll('[data-tone]').forEach(function(x) { x.classList.toggle('active', x.dataset.tone === qacaiTone); });

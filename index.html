@@ -99406,6 +99406,36 @@ function qacaiSetLogo(v,el){qacaiLogo=v;localStorage.setItem('qacai_logo',v);doc
 function qacaiSetDensity(v,el){qacaiDensity=v;localStorage.setItem('qacai_density',v);if(el){el.parentElement.querySelectorAll('.qacai-opt').forEach(function(x){x.classList.remove('active')});el.classList.add('active')}qacaiApplyVisualSettings();showToast('📐 Yazi yogunlugu degisti')}
 function qacaiToggleMultiChat(force){var p=document.getElementById('qacaiMultiChatPanel');if(!p)return;var show=typeof force==='boolean'?force:!p.classList.contains('show');p.classList.toggle('show',show)}
 function qacaiTryCalculate(text){var raw=String(text||'').toLowerCase().trim();if(!/[0-9]/.test(raw))return null;var expr=raw.replace(/hesapla|sonucunu bul|sonucu nedir|kac eder|kaç eder|nedir|lutfen|lütfen/g,'').replace(/×/g,'*').replace(/÷/g,'/').replace(/,/g,'.').replace(/\^/g,'**').replace(/%/g,'/100').trim();if(!expr||!/^[0-9+\-*/().\s]+$/.test(expr))return null;try{var n=Function('"use strict";return ('+expr+')')();if(typeof n!=='number'||!isFinite(n))return null;return '🧮 Hesaplama sonucu: '+Number(n.toFixed(12))}catch(e){return null}}
+function qacaiModelHash(value){
+    var s=String(value||'');
+    var h=2166136261;
+    for(var i=0;i<s.length;i++){
+        h^=s.charCodeAt(i);
+        h=Math.imul(h,16777619);
+    }
+    return (h>>>0);
+}
+var qacaiModelExtras={
+    flash1:[
+        'Temel noktayi hizli ve dogrudan ozetliyorum.',
+        'Kisa cevap vermek gerekirse, ana fikir budur.',
+        'En onemli kisim, temel kavrami dogru anlamaktir.',
+        'Gerekli ayrintiyi koruyarak sonucu kisaca aktariyorum.'
+    ],
+    flashlite1:[
+        'Bu konuyu degerlendirirken temel kavramlarin birbirleriyle olan iliskisini de dikkate almak yararlidir.',
+        'Pratikte sonuc, sorunun baglamina ve kullanilan yonteme gore degisebilir; bu nedenle tek bir ornegi genellememek gerekir.',
+        'Konuyu daha iyi anlamak icin tanim, kullanim amaci, sinirlar ve somut ornekleri birlikte incelemek daha saglam bir yaklasimdir.',
+        'Ayrica ilgili kavramlari karsilastirmak, benzer gorunen durumlar arasindaki farklari netlestirmeye yardimci olur.'
+    ],
+    ultra211:[
+        'Daha kapsamli bir bakista, konunun temel ilkeleri ile uygulamadaki kosullar arasindaki iliskiyi birlikte ele almak gerekir. Bu nedenle tek bir sonuca dayanmak yerine farkli senaryolari karsilastirmak daha guvenilir bir yorum saglar.',
+        'Ayrintili degerlendirmede tanim, mekanizma, kullanim alani, avantajlar, sinirlamalar ve olasi istisnalar birlikte incelenmelidir. Boylece hem ana fikri hem de hangi kosullarda degisebilecegini daha net gorebiliriz.',
+        'Bir kavramin gercek hayattaki etkisini anlamak icin teorik tanimin yaninda ornekler, baglam ve sonuclar arasindaki baglantiyi da incelemek gerekir. Bu, yuzeysel bir cevaptan daha saglam bir anlayis verir.',
+        'En saglam sonuc, farkli bilgileri karsilastirip hangi kisimlarin kesin, hangi kisimlarin kosula bagli oldugunu ayirmaktan gecer. Bu yaklasim, gereksiz genellemeleri azaltir ve daha dengeli bir cevap olusturur.'
+    ]
+};
+
 function qacaiModelAvailability(text, model) {
     var h = qacaiModelHash(text + '|' + model) % 100;
     var coverage = { flash1: 72, flashlite1: 86, ultra211: 94 };

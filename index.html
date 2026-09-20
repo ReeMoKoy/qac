@@ -1,259 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>QAC AI - Daily & Coding Assistant</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QAC AI - Daily Life & Coding Assistant</title>
+
+  <!-- Markdown parser & Highlight.js for code -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
   <style>
     :root {
-      --bg: #0d1117;
-      --card-bg: #161b22;
-      --border: #30363d;
-      --text: #c9d1d9;
-      --text-bold: #f0f6fc;
-      --accent: #238636;
-      --accent-hover: #2ea043;
-      --code-bg: #090d13;
+      --bg-primary: #0f1117;
+      --bg-secondary: #1a1d27;
+      --bg-card: #212534;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --border: #2e3446;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
+    body { background-color: var(--bg-primary); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-    /* Header & Controls */
-    header {
-      background-color: var(--card-bg);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 20px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .logo { font-size: 1.25rem; font-weight: 700; color: var(--text-bold); display: flex; align-items: center; gap: 8px; }
-    .controls { display: flex; gap: 10px; align-items: center; }
+    /* Main Chat Layout */
+    .chat-container { display: flex; flex-direction: column; flex: 1; height: 100%; max-width: 1000px; margin: 0 auto; }
+    
+    /* Header */
+    header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--bg-secondary); border-bottom: 1px solid var(--border); }
+    .brand { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .brand span { color: var(--accent); }
 
-    select, button {
-      background: var(--bg);
-      color: var(--text-bold);
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      border-radius: 6px;
-      outline: none;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    select:focus, button:focus { border-color: #58a6ff; }
+    /* Model Select */
+    .model-badge { display: flex; align-items: center; gap: 8px; }
+    select#modelSelect { background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 0.9rem; cursor: pointer; outline: none; }
 
-    /* Chat Messages Box */
-    #chat-box {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+    /* Messages Area */
+    .messages-area { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 18px; }
+    .message { display: flex; flex-direction: column; max-width: 85%; line-height: 1.6; font-size: 0.95rem; }
+    .message.user { align-self: flex-end; background: var(--accent); color: #fff; padding: 10px 16px; border-radius: 14px 14px 2px 14px; }
+    .message.ai { align-self: flex-start; background: var(--bg-card); border: 1px solid var(--border); padding: 14px 18px; border-radius: 14px 14px 14px 2px; }
+    .message-author { font-size: 0.75rem; font-weight: 600; margin-bottom: 4px; color: var(--text-muted); text-transform: uppercase; }
 
-    .message {
-      max-width: 800px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 14px 18px;
-      border-radius: 8px;
-      line-height: 1.5;
-      border: 1px solid transparent;
-    }
-    .message.user {
-      background-color: #1f242c;
-      border-color: var(--border);
-      align-self: flex-end;
-    }
-    .message.assistant {
-      background-color: var(--card-bg);
-      border-color: var(--border);
-    }
-    .badge {
-      display: inline-block;
-      font-size: 0.75rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: #21262d;
-      color: #58a6ff;
-      margin-bottom: 6px;
-      font-family: monospace;
-    }
+    /* Quick Action Pills */
+    .quick-prompts { display: flex; gap: 8px; overflow-x: auto; padding: 6px 20px; margin-bottom: 8px; }
+    .pill { background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+    .pill:hover { color: var(--text-main); border-color: var(--accent); }
 
-    pre {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      padding: 12px;
-      border-radius: 6px;
-      overflow-x: auto;
-      margin: 8px 0;
-      color: #e6edf3;
-      font-family: "SFMono-Regular", Consolas, monospace;
-      font-size: 0.85rem;
-    }
+    /* Input Box */
+    .input-wrapper { padding: 16px 20px; background: var(--bg-secondary); border-top: 1px solid var(--border); }
+    .input-form { display: flex; gap: 10px; }
+    textarea { flex: 1; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); border-radius: 10px; padding: 12px; font-size: 0.95rem; outline: none; resize: none; max-height: 120px; height: 48px; }
+    button#sendBtn { background: var(--accent); color: white; border: none; border-radius: 10px; padding: 0 20px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    button#sendBtn:hover { background: var(--accent-hover); }
 
-    /* Input Footer */
-    footer {
-      background: var(--card-bg);
-      border-top: 1px solid var(--border);
-      padding: 14px 20px;
-    }
-    .input-form {
-      max-width: 800px;
-      margin: 0 auto;
-      display: flex;
-      gap: 10px;
-    }
-    textarea {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text-bold);
-      padding: 10px 14px;
-      font-size: 0.95rem;
-      resize: none;
-      height: 48px;
-      outline: none;
-    }
-    textarea:focus { border-color: #58a6ff; }
-    .send-btn {
-      background-color: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 0 18px;
-      font-weight: 600;
-    }
-    .send-btn:hover { background-color: var(--accent-hover); }
+    /* Code styling & Copy button */
+    pre { position: relative; background: #161922; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 10px 0; }
+    code { font-family: 'Courier New', monospace; font-size: 0.88rem; }
+    .copy-btn { position: absolute; top: 6px; right: 6px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+    .copy-btn:hover { color: #fff; }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">⚡ QAC AI</div>
-    <div class="controls">
-      <!-- Mode Selection -->
-      <select id="mode-select">
-        <option value="daily">Daily Life Mode</option>
-        <option value="coding">Coding Mode</option>
-      </select>
+  <div class="chat-container">
+    <header>
+      <div class="brand">⚡ <span>QAC AI</span></div>
+      <div class="model-badge">
+        <select id="modelSelect">
+          <option value="QacAI-Flash-lite">⚡ QacAI-Flash-lite (Fast & Daily Tasks)</option>
+          <option value="QacAI-Flash" selected>🔥 QacAI-Flash (Balanced & General Code)</option>
+          <option value="QacAI-Ultra">🧠 QacAI-Ultra (Complex Logic & Architecture)</option>
+        </select>
+      </div>
+    </header>
 
-      <!-- QAC AI Tier Selection -->
-      <select id="model-select">
-        <option value="QacAI-Flash-lite">QacAI-Flash-lite (Fastest)</option>
-        <option value="QacAI-Flash" selected>QacAI-Flash (Balanced)</option>
-        <option value="QacAI-Ultra">QacAI-Ultra (Deep Logic)</option>
-      </select>
+    <div class="messages-area" id="messagesArea">
+      <div class="message ai">
+        <div class="message-author">QAC AI</div>
+        <div class="message-content">Hello! I am **QAC AI**. Whether you need help managing daily life routines or writing and debugging code, I'm ready. Select a model above to get started!</div>
+      </div>
     </div>
-  </header>
 
-  <!-- Message History Display -->
-  <main id="chat-box">
-    <div class="message assistant">
-      <div class="badge">QAC AI System</div>
-      <div>Hello! I am <strong>QAC AI</strong>. Choose a mode above (Daily Life or Coding) and ask me anything to get started.</div>
+    <!-- Quick starter tags -->
+    <div class="quick-prompts">
+      <button class="pill" onclick="sendPrompt('📅 Plan a productive schedule for my day today.')">📅 Daily Schedule</button>
+      <button class="pill" onclick="sendPrompt('💻 Write an optimized Python script to fetch and parse JSON from a REST API.')">💻 Python API Script</button>
+      <button class="pill" onclick="sendPrompt('⚡ Review and optimize this function for time complexity:')">⚡ Optimize Code</button>
+      <button class="pill" onclick="sendPrompt('📝 Summarize key productivity rules for work-life balance.')">📝 Daily Tips</button>
     </div>
-  </main>
 
-  <!-- Input Form -->
-  <footer>
-    <form class="input-form" id="chat-form">
-      <textarea id="prompt-input" placeholder="Type a message or code question... (Enter to send, Shift+Enter for newline)"></textarea>
-      <button type="submit" class="send-btn">Send</button>
-    </form>
-  </footer>
+    <div class="input-wrapper">
+      <form class="input-form" id="chatForm">
+        <textarea id="userInput" placeholder="Ask a daily life question or paste your code..." rows="1"></textarea>
+        <button type="submit" id="sendBtn">Send</button>
+      </form>
+    </div>
+  </div>
 
   <script>
-    const chatBox = document.getElementById('chat-box');
-    const chatForm = document.getElementById('chat-form');
-    const promptInput = document.getElementById('prompt-input');
-    const modeSelect = document.getElementById('mode-select');
-    const modelSelect = document.getElementById('model-select');
+    const messagesArea = document.getElementById('messagesArea');
+    const chatForm = document.getElementById('chatForm');
+    const userInput = document.getElementById('userInput');
+    const modelSelect = document.getElementById('modelSelect');
 
-    // Conversation history kept in memory
-    const conversation = [];
+    let messageHistory = [];
 
-    // Auto submit on Enter (without Shift)
-    promptInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        chatForm.dispatchEvent(new Event('submit'));
-      }
-    });
+    // Attach Copy buttons to rendered code blocks
+    function enhanceCodeBlocks(container) {
+      container.querySelectorAll('pre').forEach(pre => {
+        if (!pre.querySelector('.copy-btn')) {
+          const btn = document.createElement('button');
+          btn.className = 'copy-btn';
+          btn.innerText = 'Copy';
+          btn.onclick = () => {
+            navigator.clipboard.writeText(pre.querySelector('code').innerText);
+            btn.innerText = 'Copied!';
+            setTimeout(() => btn.innerText = 'Copy', 2000);
+          };
+          pre.appendChild(btn);
+        }
+      });
+      container.querySelectorAll('pre code').forEach((el) => {
+        hljs.highlightElement(el);
+      });
+    }
 
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const userText = promptInput.value.trim();
-      if (!userText) return;
+    function appendMessage(role, text, modelName = "") {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${role}`;
+      
+      const author = role === 'user' ? 'You' : (modelName || 'QAC AI');
+      msgDiv.innerHTML = `
+        <div class="message-author">${author}</div>
+        <div class="message-content">${marked.parse(text)}</div>
+      `;
+      messagesArea.appendChild(msgDiv);
+      enhanceCodeBlocks(msgDiv);
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+      return msgDiv.querySelector('.message-content');
+    }
 
-      const mode = modeSelect.value;
-      const model = modelSelect.value;
+    async function handleSend(promptText) {
+      const text = promptText || userInput.value.trim();
+      if (!text) return;
 
-      // 1. Render user message
-      appendMessage('user', 'You', userText);
-      promptInput.value = '';
+      const selectedModel = modelSelect.value;
+      appendMessage('user', text);
+      messageHistory.push({ role: 'user', content: text });
+      userInput.value = '';
 
-      // 2. Add to context history
-      conversation.push({ role: 'user', content: userText });
-
-      // 3. Create placeholder assistant message
-      const assistantDiv = appendMessage('assistant', `${model} (${mode.toUpperCase()})`, 'Thinking...');
+      // Create empty AI response block for streaming
+      const responseEl = appendMessage('ai', 'Thinking...', selectedModel);
 
       try {
-        // Send request to your backend or serverless route
-        const response = await fetch('/api/chat', {
+        const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            messages: conversation,
-            mode: mode,
-            tier: model
+            model: selectedModel,
+            messages: messageHistory
           })
         });
 
-        if (!response.ok) {
-          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        if (!res.ok) throw new Error(await res.text());
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullResponse = '';
+
+        responseEl.innerHTML = ''; // Clear placeholder
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+              try {
+                const parsed = JSON.parse(line.replace('data: ', ''));
+                const token = parsed.choices?.[0]?.delta?.content || '';
+                fullResponse += token;
+                responseEl.innerHTML = marked.parse(fullResponse);
+              } catch (e) {
+                // Ignore parsing errors for partial frames
+              }
+            }
+          }
+          messagesArea.scrollTop = messagesArea.scrollHeight;
         }
 
-        const data = await response.json();
-        const reply = data.reply || 'No response received.';
-        
-        // Render final response and save to history
-        assistantDiv.querySelector('.content').innerHTML = formatMarkdown(reply);
-        conversation.push({ role: 'assistant', content: reply });
-      } catch (err) {
-        assistantDiv.querySelector('.content').innerHTML = `<span style="color: #f85149;">Error: ${err.message}</span>`;
-      }
+        enhanceCodeBlocks(responseEl.parentElement);
+        messageHistory.push({ role: 'assistant', content: fullResponse });
 
-      chatBox.scrollTop = chatBox.scrollHeight;
+      } catch (err) {
+        responseEl.innerHTML = `<span style="color: #ef4444;">Error: ${err.message}</span>`;
+      }
+    }
+
+    function sendPrompt(prompt) {
+      handleSend(prompt);
+    }
+
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      handleSend();
     });
 
-    function appendMessage(sender, label, text) {
-      const msg = document.createElement('div');
-      msg.className = `message ${sender}`;
-      msg.innerHTML = `
-        <div class="badge">${label}</div>
-        <div class="content">${formatMarkdown(text)}</div>
-      `;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return msg;
-    }
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    });
 
-    // Basic markdown formatter for code blocks
-    function formatMarkdown(text) {
-      return text
-        .replace(/```([\s\S]*?)```/g, (match, code) => `<pre><code>${escapeHtml(code.trim())}</code></pre>`)
-        .replace(/\n/g, '<br/>');
-    }
-
-    function escapeHtml(str) {
-      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
+    // Auto-highlight initial greeting
+    hljs.highlightAll();
   </script>
 </body>
 </html>

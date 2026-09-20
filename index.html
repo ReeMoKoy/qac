@@ -99436,16 +99436,24 @@ var qacaiModelExtras={
     ]
 };
 
-function qacaiModelAvailability(text, model) {
-    var h = qacaiModelHash(text + '|' + model) % 100;
-    var coverage = { flash1: 72, flashlite1: 86, ultra211: 94 };
-    return h < coverage[model];
+function qacaiGetModelData(model) {
+    if (model === 'ultra211') return qacaiUltraData;
+    if (model === 'flashlite1') return qacaiProData;
+    return qacaiFlash1Data;
 }
 function qacaiFindOwnModel(text, model) {
-    if (!qacaiModelAvailability(text, model)) return null;
-    if (model === 'ultra211') return qacaiSearchInData(text, qacaiUltraData);
-    if (model === 'flashlite1') return qacaiSearchInData(text, qacaiProData);
-    return qacaiSearchInData(text, qacaiFlash1Data);
+    // Önce modelin kendi havuzunu tara. Bulamazsan aynı sorunun başka modeldeki
+    // temel bilgisini al; cevap daha sonra seçilen modele özgü biçimde yazılır.
+    var own = qacaiSearchInData(text, qacaiGetModelData(model));
+    if (own) return own;
+    var pools = model === 'flash1' ? [qacaiProData, qacaiUltraData] :
+                model === 'flashlite1' ? [qacaiFlash1Data, qacaiUltraData] :
+                [qacaiProData, qacaiFlash1Data];
+    for (var i = 0; i < pools.length; i++) {
+        var other = qacaiSearchInData(text, pools[i]);
+        if (other) return other;
+    }
+    return null;
 }
 function qacaiFindAcrossModels(text,current){
     var order=current==='flash1'?['flash1','flashlite1','ultra211']:current==='flashlite1'?['flashlite1','ultra211','flash1']:['ultra211','flashlite1','flash1'];
@@ -99472,18 +99480,31 @@ function qacaiSwitchToModel(model){
 }
 function qacaiAdaptModelAnswer(base,text,model){
     if(!base)return base;
+    var raw=String(base).replace(/\s+/g,' ').trim();
+    var parts=raw.split(/(?:[.!?])\s+/).map(function(x){return x.trim();}).filter(function(x){return x;});
     var pool=qacaiModelExtras[model]||qacaiModelExtras.flashlite1;
-    var idx=qacaiModelHash(text)%pool.length;
-    var extra=pool[idx];
-    var parts=String(base).split(/(?:[.!?])\s+/).filter(function(x){return x.trim();});
+    var h=qacaiModelHash(text);
+    var extra=pool[h%pool.length];
+    var q=String(text||'').trim();
+    var first=parts[0]||raw;
+    var second=parts[1]||'';
+    var third=parts[2]||'';
+
     if(model==='flash1'){
-        var short=parts.slice(0,2).join('. ').trim();
-        if(short && !/[.!?]$/.test(short)) short+='.';
-        if(short.length>240) short=short.slice(0,237).trim()+'...';
-        return short+' '+extra;
+        var shortParts=(h%2===0?[first,second]:[second||first,first]).filter(function(x,i,a){return x && a.indexOf(x)===i;});
+        var short=shortParts.join('. ');
+        if(!/[.!?]$/.test(short)) short+='.';
+        if(short.length>260) short=short.slice(0,257).trim()+'...';
+        return '⚡ Kisa cevap: '+short+' '+extra;
     }
-    if(model==='flashlite1') return String(base).trim()+'\n\nEk bilgi: '+extra;
-    return String(base).trim()+'\n\nDerinlemesine degerlendirme:\n'+extra+'\n\nPratik sonuc: Bu bilgiyi kullanirken sorunun baglamini, amacini ve eldeki diger verileri birlikte degerlendirmek daha saglam bir yaklasimdir.';
+
+    if(model==='flashlite1'){
+        var middle=(h%2===0?[first,second,third]:[second||first,third||second,first]).filter(function(x,i,a){return x && a.indexOf(x)===i;}).join('. ');
+        return '🧠 Ayrintili cevap: '+middle+'.\n\nBaglam: '+extra+'\n\nSoru odagi: '+q+' konusunda temel bilgi ile pratik kullanim arasindaki iliskiyi birlikte dusunmek yararlidir.';
+    }
+
+    var ordered=[third||first,first,second].filter(function(x,i,a){return x && a.indexOf(x)===i;}).join('. ');
+    return '🌌 Derin analiz: '+ordered+'.\n\n'+extra+'\n\nModel notu: Bu cevap, sorunun ana kavramini aciklamanin yaninda ilgili kosullari, sinirlari ve olasi farkli durumlari ayri ayri ele alacak sekilde duzenlenmistir.\n\nPratik sonuc: '+q+' sorusunu tek bir ornekle sinirlamak yerine baglam, amac ve uygulanabilir sonuc birlikte degerlendirilmelidir.';
 }
 function qacaiGetAIResponse(text,opts){
     opts=opts||{};

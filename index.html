@@ -1,0 +1,1089 @@
+```html
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>İyi ki Doğdun Esilay 💖</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #030008;
+        }
+
+        /* ==============================
+           LOADING
+        ============================== */
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+            background:
+                radial-gradient(
+                    circle at center,
+                    #35005f 0%,
+                    #110021 45%,
+                    #020005 100%
+                );
+
+            transition:
+                opacity 1s ease,
+                visibility 1s ease;
+        }
+
+        #loading.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-heart {
+            font-size: 80px;
+
+            animation: heartbeat 1s infinite;
+
+            filter:
+                drop-shadow(0 0 15px #ff4fd8)
+                drop-shadow(0 0 35px #9d5cff);
+        }
+
+        .loading-title {
+            margin-top: 22px;
+
+            color: white;
+
+            font-size: 22px;
+            letter-spacing: 3px;
+
+            text-align: center;
+
+            text-shadow:
+                0 0 10px #ff4fd8,
+                0 0 25px #9d5cff;
+        }
+
+        .loading-bar {
+            width: min(300px, 75vw);
+            height: 6px;
+
+            margin-top: 28px;
+
+            background: rgba(255,255,255,.15);
+
+            border-radius: 20px;
+
+            overflow: hidden;
+        }
+
+        .loading-progress {
+            width: 0;
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #ff4fd8,
+                    #9d5cff,
+                    #55d9ff
+                );
+
+            animation:
+                loadingProgress 5s linear forwards;
+        }
+
+        .loading-text {
+            margin-top: 14px;
+
+            color: rgba(255,255,255,.65);
+
+            font-size: 14px;
+        }
+
+        @keyframes loadingProgress {
+            from {
+                width: 0%;
+            }
+
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+        }
+
+
+        /* ==============================
+           ANA SAYFA
+        ============================== */
+
+        #main {
+            position: fixed;
+            inset: 0;
+
+            opacity: 0;
+            visibility: hidden;
+
+            transition:
+                opacity 1.5s ease;
+
+            background:
+                radial-gradient(
+                    circle at 50% 45%,
+                    #290052 0%,
+                    #0d0024 35%,
+                    #020006 80%
+                );
+        }
+
+        #main.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        /* ==============================
+           YILDIZLAR
+        ============================== */
+
+        .stars {
+            position: absolute;
+            inset: 0;
+
+            background-image:
+                radial-gradient(
+                    circle,
+                    rgba(255,255,255,.9) 1px,
+                    transparent 1px
+                ),
+                radial-gradient(
+                    circle,
+                    rgba(255,255,255,.6) 1px,
+                    transparent 1px
+                );
+
+            background-size:
+                80px 80px,
+                130px 130px;
+
+            background-position:
+                0 0,
+                40px 30px;
+
+            opacity: .5;
+
+            animation:
+                starsMove 15s linear infinite;
+        }
+
+        @keyframes starsMove {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(80px);
+            }
+        }
+
+
+        /* ==============================
+           İÇERİK
+        ============================== */
+
+        .content {
+            position: relative;
+            z-index: 10;
+
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            padding: 25px;
+        }
+
+        .small-text {
+            color: #ffb9f0;
+
+            font-size: 18px;
+
+            letter-spacing: 5px;
+
+            margin-bottom: 18px;
+
+            text-shadow:
+                0 0 15px #ff4fd8;
+
+            animation:
+                fadeUp 1.5s ease forwards;
+        }
+
+        h1 {
+            color: white;
+
+            font-size:
+                clamp(42px, 8vw, 90px);
+
+            line-height: 1.05;
+
+            max-width: 1000px;
+
+            text-shadow:
+                0 0 10px #ff5bd7,
+                0 0 25px #ff3ecb,
+                0 0 50px #8e39ff;
+
+            animation:
+                titleGlow 2s ease-in-out infinite alternate;
+        }
+
+        .name {
+            display: block;
+
+            color: #ff8be5;
+
+            margin-top: 8px;
+        }
+
+        .age {
+            margin-top: 25px;
+
+            color: white;
+
+            font-size:
+                clamp(22px, 4vw, 36px);
+
+            text-shadow:
+                0 0 15px #b45cff;
+        }
+
+        .dua {
+            max-width: 750px;
+
+            margin-top: 28px;
+
+            color: rgba(255,255,255,.9);
+
+            font-size:
+                clamp(16px, 2vw, 21px);
+
+            line-height: 1.7;
+
+            padding: 0 20px;
+
+            text-shadow:
+                0 0 10px rgba(255,255,255,.25);
+
+            animation:
+                fadeUp 2s ease forwards;
+        }
+
+        .dua strong {
+            color: #ff9ce9;
+
+            text-shadow:
+                0 0 15px #ff4fd8;
+        }
+
+        .signature {
+            margin-top: 27px;
+
+            color: #ff9ce9;
+
+            font-size: 18px;
+
+            font-style: italic;
+
+            text-shadow:
+                0 0 12px #ff4fd8;
+        }
+
+        @keyframes titleGlow {
+            from {
+                transform: scale(1);
+
+                text-shadow:
+                    0 0 10px #ff5bd7,
+                    0 0 25px #ff3ecb,
+                    0 0 50px #8e39ff;
+            }
+
+            to {
+                transform: scale(1.02);
+
+                text-shadow:
+                    0 0 15px white,
+                    0 0 35px #ff5bd7,
+                    0 0 70px #8e39ff;
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* ==============================
+           HAVAİ FİŞEKLER
+        ============================== */
+
+        #fireworks {
+            position: absolute;
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            z-index: 5;
+
+            pointer-events: none;
+        }
+
+
+        /* ==============================
+           MÜZİK BUTONU
+        ============================== */
+
+        #musicButton {
+            position: fixed;
+
+            right: 20px;
+            bottom: 20px;
+
+            z-index: 100;
+
+            border: 1px solid rgba(255,255,255,.3);
+
+            background:
+                rgba(30,0,55,.8);
+
+            color: white;
+
+            padding:
+                12px 20px;
+
+            border-radius: 30px;
+
+            cursor: pointer;
+
+            backdrop-filter: blur(10px);
+
+            box-shadow:
+                0 0 20px rgba(255,80,220,.35);
+
+            font-size: 14px;
+
+            transition: .3s;
+        }
+
+        #musicButton:hover {
+            transform: scale(1.06);
+
+            background:
+                rgba(90,0,100,.9);
+        }
+
+
+        /* ==============================
+           MOBİL
+        ============================== */
+
+        @media (max-width: 600px) {
+
+            .small-text {
+                font-size: 13px;
+                letter-spacing: 3px;
+            }
+
+            .dua {
+                font-size: 15px;
+                line-height: 1.6;
+            }
+
+            .signature {
+                font-size: 15px;
+            }
+
+            #musicButton {
+                right: 12px;
+                bottom: 12px;
+
+                font-size: 13px;
+
+                padding:
+                    10px 16px;
+            }
+        }
+
+    </style>
+</head>
+
+
+<body>
+
+
+<!-- ==========================================
+     5 SANİYELİK AÇILIŞ
+========================================== -->
+
+<div id="loading">
+
+    <div class="loader-heart">
+        💖
+    </div>
+
+    <div class="loading-title">
+        Esilay için özel bir şey hazırlanıyor...
+    </div>
+
+    <div class="loading-bar">
+
+        <div class="loading-progress"></div>
+
+    </div>
+
+    <div class="loading-text">
+        Biraz sabret... ✨
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     ANA SAYFA
+========================================== -->
+
+<div id="main">
+
+    <div class="stars"></div>
+
+    <canvas id="fireworks"></canvas>
+
+
+    <div class="content">
+
+        <div class="small-text">
+            BUGÜN ÇOK ÖZEL BİR GÜN ✨
+        </div>
+
+
+        <h1>
+
+            Doğum günün kutlu olsun
+
+            <span class="name">
+                Esilay 💖
+            </span>
+
+        </h1>
+
+
+        <div class="age">
+            🎂 13. yaşın kutlu olsun! 🎂
+        </div>
+
+
+        <div class="dua">
+
+            Allah yeni yaşını sağlık, mutluluk, huzur
+            ve güzelliklerle doldursun.
+
+            Her yeni yaşında yüzünden gülümsemen,
+            kalbinden umut ve hayatından güzel insanlar
+            eksik olmasın.
+
+            Dilediğin bütün güzel şeylerin gerçekleşmesi
+            ve gönlündeki güzelliklerin seni bulması
+            dileğiyle...
+
+            <br><br>
+
+            <strong>
+                İyi ki doğdun Esilay. 🤍
+            </strong>
+
+        </div>
+
+
+        <div class="signature">
+            Nice güzel yaşlara... 🌸
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     YOUTUBE
+
+     ON THE FLOOR
+     126. SANİYEDEN BAŞLIYOR
+========================================== -->
+
+<iframe
+    id="youtubeMusic"
+
+    src="https://www.youtube.com/embed/t4H_Zoh7G5A?autoplay=1&start=126&loop=1&playlist=t4H_Zoh7G5A&controls=0&rel=0"
+
+    title="Birthday Music"
+
+    frameborder="0"
+
+    allow="autoplay; encrypted-media"
+
+    style="
+        position: fixed;
+        left: -20px;
+        bottom: -20px;
+
+        width: 1px;
+        height: 1px;
+
+        opacity: 0.01;
+
+        pointer-events: none;
+    ">
+</iframe>
+
+
+<!-- ==========================================
+     MÜZİĞİ BAŞLAT
+========================================== -->
+
+<button id="musicButton">
+    🔊 Müziği Başlat
+</button>
+
+
+<script>
+
+    /* ==========================================
+       ELEMENTLER
+    ========================================== */
+
+    const loading =
+        document.getElementById("loading");
+
+    const main =
+        document.getElementById("main");
+
+    const musicButton =
+        document.getElementById("musicButton");
+
+    const youtubeMusic =
+        document.getElementById("youtubeMusic");
+
+
+    /* ==========================================
+       5 SANİYE SONRA SİTE
+    ========================================== */
+
+    setTimeout(() => {
+
+        loading.classList.add("hide");
+
+        main.classList.add("show");
+
+        startFireworks();
+
+    }, 5000);
+
+
+    /* ==========================================
+       MÜZİK BUTONU
+    ========================================== */
+
+    musicButton.addEventListener("click", () => {
+
+        youtubeMusic.src =
+            "https://www.youtube.com/embed/" +
+            "t4H_Zoh7G5A" +
+            "?autoplay=1" +
+            "&start=126" +
+            "&loop=1" +
+            "&playlist=t4H_Zoh7G5A" +
+            "&controls=0" +
+            "&rel=0";
+
+        musicButton.innerHTML =
+            "🎵 Müzik Başlatılıyor...";
+
+        setTimeout(() => {
+
+            musicButton.innerHTML =
+                "🎵 On The Floor";
+
+        }, 1500);
+
+    });
+
+
+    /* ==========================================
+       HAVAİ FİŞEK CANVAS
+    ========================================== */
+
+    const canvas =
+        document.getElementById("fireworks");
+
+    const ctx =
+        canvas.getContext("2d");
+
+    let particles = [];
+
+    let fireworks = [];
+
+
+    function resizeCanvas() {
+
+        canvas.width =
+            window.innerWidth;
+
+        canvas.height =
+            window.innerHeight;
+
+    }
+
+
+    resizeCanvas();
+
+
+    window.addEventListener(
+        "resize",
+        resizeCanvas
+    );
+
+
+    /* ==========================================
+       PARTICLE
+    ========================================== */
+
+    class Particle {
+
+        constructor(
+            x,
+            y,
+            color,
+            angle,
+            speed
+        ) {
+
+            this.x = x;
+            this.y = y;
+
+            this.color = color;
+
+            this.vx =
+                Math.cos(angle) * speed;
+
+            this.vy =
+                Math.sin(angle) * speed;
+
+            this.alpha = 1;
+
+            this.gravity = 0.035;
+
+            this.friction = 0.985;
+        }
+
+
+        update() {
+
+            this.vx *=
+                this.friction;
+
+            this.vy *=
+                this.friction;
+
+            this.vy +=
+                this.gravity;
+
+            this.x +=
+                this.vx;
+
+            this.y +=
+                this.vy;
+
+            this.alpha -=
+                0.012;
+        }
+
+
+        draw() {
+
+            ctx.save();
+
+            ctx.globalAlpha =
+                Math.max(
+                    this.alpha,
+                    0
+                );
+
+            ctx.beginPath();
+
+            ctx.arc(
+                this.x,
+                this.y,
+                2,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fillStyle =
+                this.color;
+
+            ctx.shadowBlur =
+                15;
+
+            ctx.shadowColor =
+                this.color;
+
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+    }
+
+
+    /* ==========================================
+       HAVAİ FİŞEK PATLAT
+    ========================================== */
+
+    function explode(x, y) {
+
+        const colors = [
+            "#ff4fd8",
+            "#9d5cff",
+            "#55d9ff",
+            "#ffffff",
+            "#ffd45c",
+            "#ff6b6b"
+        ];
+
+
+        const color =
+            colors[
+                Math.floor(
+                    Math.random() *
+                    colors.length
+                )
+            ];
+
+
+        const particleCount = 100;
+
+
+        for (
+            let i = 0;
+            i < particleCount;
+            i++
+        ) {
+
+            const angle =
+                (Math.PI * 2 * i) /
+                particleCount;
+
+
+            const speed =
+                2 +
+                Math.random() * 4;
+
+
+            particles.push(
+
+                new Particle(
+                    x,
+                    y,
+                    color,
+                    angle,
+                    speed
+                )
+
+            );
+
+        }
+
+    }
+
+
+    /* ==========================================
+       ROKET FIRLAT
+    ========================================== */
+
+    function launchFirework() {
+
+        const fromLeft =
+            Math.random() < 0.5;
+
+
+        let x;
+
+
+        if (fromLeft) {
+
+            x =
+                30 +
+                Math.random() *
+                (window.innerWidth * 0.25);
+
+        } else {
+
+            x =
+                window.innerWidth -
+                30 -
+                Math.random() *
+                (window.innerWidth * 0.25);
+
+        }
+
+
+        const targetY =
+            window.innerHeight *
+            0.15 +
+            Math.random() *
+            window.innerHeight *
+            0.38;
+
+
+        fireworks.push({
+
+            x: x,
+
+            y:
+                window.innerHeight,
+
+            targetY:
+                targetY,
+
+            speed:
+                7 +
+                Math.random() * 3,
+
+            exploded:
+                false
+
+        });
+
+    }
+
+
+    /* ==========================================
+       GÜNCELLE
+    ========================================== */
+
+    function updateFireworks() {
+
+        /* Roketler */
+
+        for (
+            let i = fireworks.length - 1;
+            i >= 0;
+            i--
+        ) {
+
+            const firework =
+                fireworks[i];
+
+
+            if (
+                !firework.exploded
+            ) {
+
+                firework.y -=
+                    firework.speed;
+
+
+                ctx.save();
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    firework.x,
+                    firework.y,
+                    2,
+                    0,
+                    Math.PI * 2
+                );
+
+                ctx.fillStyle =
+                    "#ffffff";
+
+                ctx.shadowBlur =
+                    15;
+
+                ctx.shadowColor =
+                    "#ffffff";
+
+                ctx.fill();
+
+                ctx.restore();
+
+
+                if (
+                    firework.y <=
+                    firework.targetY
+                ) {
+
+                    explode(
+                        firework.x,
+                        firework.y
+                    );
+
+
+                    firework.exploded =
+                        true;
+
+
+                    fireworks.splice(
+                        i,
+                        1
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        /* Parçacıklar */
+
+        for (
+            let i = particles.length - 1;
+            i >= 0;
+            i--
+        ) {
+
+            const particle =
+                particles[i];
+
+
+            particle.update();
+
+            particle.draw();
+
+
+            if (
+                particle.alpha <= 0
+            ) {
+
+                particles.splice(
+                    i,
+                    1
+                );
+
+            }
+
+        }
+
+    }
+
+
+    /* ==========================================
+       ANİMASYON
+    ========================================== */
+
+    function animate() {
+
+        ctx.clearRect(
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+
+
+        updateFireworks();
+
+
+        requestAnimationFrame(
+            animate
+        );
+
+    }
+
+
+    /* ==========================================
+       HAVAİ FİŞEKLERİ BAŞLAT
+    ========================================== */
+
+    function startFireworks() {
+
+        animate();
+
+
+        setTimeout(
+            launchFirework,
+            300
+        );
+
+        setTimeout(
+            launchFirework,
+            800
+        );
+
+        setTimeout(
+            launchFirework,
+            1300
+        );
+
+        setTimeout(
+            launchFirework,
+            1800
+        );
+
+
+        setInterval(() => {
+
+            launchFirework();
+
+        }, 1700);
+
+    }
+
+</script>
+
+</body>
+</html>
+```
